@@ -1,5 +1,5 @@
 /*
-    Non blocking (NIO) tcp/http server.
+    Non blocking (NIO) tcp/http server implementation.
 */
 import java.io.IOException;
 import java.net.InetAddress;
@@ -29,6 +29,10 @@ private ByteBuffer readBuffer = ByteBuffer.allocate(BUFFER_SIZE);
 public NIOServer(int port) throws IOException {
     this.port = port;
     selector = SelectorProvider.provider().openSelector();
+
+//
+// http://docs.oracle.com/javase/7/docs/api/java/nio/channels/SocketChannel.html
+//
     ServerSocketChannel serverChannel = ServerSocketChannel.open();
     serverChannel.configureBlocking(false);    
     serverChannel.socket().bind(new InetSocketAddress(hostAddress, port));
@@ -73,6 +77,16 @@ private void accept(SelectionKey key) throws IOException {
     socketChannel.register(selector, SelectionKey.OP_READ);
 }
 
+
+//
+// http://docs.oracle.com/javase/7/docs/api/java/nio/channels/SelectionKey.html
+//
+// Object  attach(Object ob)
+// Attaches the given object to this key.
+// Object  attachment()
+// Retrieves the current attachment.
+// 
+
 private void read(SelectionKey key) throws IOException {
     SocketChannel socketChannel = (SocketChannel) key.channel();
     readBuffer.clear();
@@ -94,6 +108,11 @@ private void read(SelectionKey key) throws IOException {
 
     socketChannel.register(selector, SelectionKey.OP_WRITE);
 }
+
+//
+// http://tutorials.jenkov.com/java-nio/scatter-gather.html
+// https://forums.bukkit.org/threads/ultra-fast-java-nio-webserver-less-than-350-lines.101080/
+//
 
 private void write(SelectionKey key) throws IOException {
     SocketChannel socketChannel = (SocketChannel) key.channel();
